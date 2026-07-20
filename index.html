@@ -228,8 +228,14 @@
 // deployed site, not a sandboxed artifact, so browser storage is fine here).
 // ============================================================
 
+// Set this to your backend's real URL — the dashboard uses it automatically,
+// no separate "connect to backend" step needed. localStorage can still
+// override it (e.g. for testing against a different backend), but new
+// visitors go straight past this.
+const DEFAULT_API_BASE = 'https://fxspay.onrender.com';
+
 const state = {
-  apiBase: localStorage.getItem('fxs_api_base') || '',
+  apiBase: localStorage.getItem('fxs_api_base') || DEFAULT_API_BASE,
   token: localStorage.getItem('fxs_token') || '',
   merchant: null,
   view: 'overview',
@@ -308,8 +314,16 @@ function renderAuth() {
           ${isLogin ? "Don't have an account? " : "Already have an account? "}
           <button class="link" onclick="toggleAuthMode()">${isLogin ? 'Register' : 'Log in'}</button>
         </div>
+        <div class="auth-toggle" style="margin-top:6px;">
+          <button class="link" style="font-size:12px;" onclick="resetConfig()">Change backend URL</button>
+        </div>
       </div>
     </div>`;
+}
+function resetConfig() {
+  state.apiBase = '';
+  localStorage.removeItem('fxs_api_base');
+  render();
 }
 function toggleAuthMode() { authMode = authMode === 'login' ? 'register' : 'login'; renderAuth(); }
 
