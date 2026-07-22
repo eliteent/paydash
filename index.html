@@ -547,11 +547,32 @@ async function generateKey() {
     revealEl.innerHTML = `
       <div class="key-reveal">
         <div style="margin-bottom:6px; color:var(--teal); font-weight:600; font-size:13px;">Copy this now — it won't be shown again</div>
-        <div class="mono">${data.apiKey}</div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <div class="mono" id="new-key-value" style="flex:1;">${data.apiKey}</div>
+          <button type="button" class="secondary" style="padding:6px 12px; font-size:12px; flex-shrink:0;" onclick="copyKeyToClipboard('${data.apiKey}', this)">Copy</button>
+        </div>
       </div>`;
     loadKeys();
   } catch (err) {
     errorEl.innerHTML = `<div class="error-msg">${err.message}</div>`;
+  }
+}
+
+async function copyKeyToClipboard(key, btnEl) {
+  try {
+    await navigator.clipboard.writeText(key);
+    const original = btnEl.textContent;
+    btnEl.textContent = 'Copied!';
+    setTimeout(() => { btnEl.textContent = original; }, 1500);
+  } catch (err) {
+    // Clipboard API can fail on non-HTTPS or older browsers — fall back to manual select
+    const range = document.createRange();
+    const el = document.getElementById('new-key-value');
+    range.selectNodeContents(el);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    btnEl.textContent = 'Selected — press Ctrl+C';
   }
 }
 
